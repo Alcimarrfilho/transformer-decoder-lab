@@ -1,66 +1,56 @@
 import torch
 from decoder import DecoderLayer
 
-def generate_next_token(contexto, encoder_out, decoder):
-    # Mock de predição
-    # Simula um vocabulário de 10.000 tokens
-    vocab_size = 10000
-    logits = torch.randn(1, vocab_size)
-    probs = torch.softmax(logits, dim=-1)
-    return probs
 
-def run_lab():
-    vocab_teste = ["<PAD>", "<START>", "<EOS>", "O", "Decoder", "funciona"]
-    encoder_out = torch.randn(1, 5, 512)
-    decoder = DecoderLayer()
-    
-    # token de início
-    contexto = ["<START>"]
-    
-    print("--- Gerando Texto (Tarefa 3) ---")
+# Função separada pedida no laboratório
+def generate_next_token(current_sequence, encoder_out, decoder, vocab):
 
-    # O Loop while
-    while len(contexto) < 15:
-        probs = generate_next_token(contexto, encoder_out, decoder)
-        
-        # Seleciona a palavra com maior probabilidade (Argmax)
-        idx = torch.argmax(probs).item()
-        
-        # se o idx for alto, sorteamos do nosso vocab_teste
-        palavra = vocab_teste[idx % len(vocab_teste)]
-        
-        print(f"Token: {palavra}")
-        
-        if palavra == "<EOS>":
-            break
-            
-        contexto.append(palavra)
+    # Simula embeddings da sequência atual
+    x = torch.randn(1, len(current_sequence), 512)
 
-    print("\nFRASE FINAL:", " ".join(contexto))
+    # Passa pelo decoder
+    output = decoder(x, encoder_out)
 
-if __name__ == "__main__":
-    run_lab()
+    # Simula projeção para vocabulário
+    logits = torch.randn(len(vocab))
+
+    # Converte em probabilidades
+    probs = torch.softmax(logits, dim=0)
+
+    # Escolhe o token com maior probabilidade
+    idx = torch.argmax(probs).item()
+
+    return vocab[idx]
+
 
 def executar_geracao():
+
     decoder = DecoderLayer(d_model=512)
+
     vocab = ["<PAD>", "<START>", "<EOS>", "Transformers", "são", "poderosos"]
+
+    # Saída simulada do encoder
     encoder_out = torch.randn(1, 5, 512)
+
     frase = ["<START>"]
-    
-    print("--- Gerando ---")
+
+    print("--- Gerando sequência ---")
+
+    # LOOP AUTO-REGRESSIVO
     while len(frase) < 10:
-        x = torch.randn(1, len(frase), 512)
-        saida = decoder(x, encoder_out) # Chama seu forward
-        
-        # Simula escolha da próxima palavra
-        idx = torch.randint(2, len(vocab), (1,)).item()
-        palavra = vocab[idx]
-        print(f"Token: {palavra}")
 
-        if palavra == "<EOS>": break
-        frase.append(palavra)
+        token = generate_next_token(frase, encoder_out, decoder, vocab)
 
-    print("\nResultado:", " ".join(frase))
+        print("Token gerado:", token)
+
+        if token == "<EOS>":
+            break
+
+        frase.append(token)
+
+    print("\nResultado final:")
+    print(" ".join(frase))
+
 
 if __name__ == "__main__":
     executar_geracao()
