@@ -40,3 +40,27 @@ def run_lab():
 
 if __name__ == "__main__":
     run_lab()
+
+def executar_geracao():
+    decoder = DecoderLayer(d_model=512)
+    vocab = ["<PAD>", "<START>", "<EOS>", "Transformers", "são", "poderosos"]
+    encoder_out = torch.randn(1, 5, 512)
+    frase = ["<START>"]
+    
+    print("--- Gerando ---")
+    while len(frase) < 10:
+        x = torch.randn(1, len(frase), 512)
+        saida = decoder(x, encoder_out) # Chama seu forward
+        
+        # Simula escolha da próxima palavra
+        idx = torch.randint(2, len(vocab), (1,)).item()
+        palavra = vocab[idx]
+        print(f"Token: {palavra}")
+
+        if palavra == "<EOS>": break
+        frase.append(palavra)
+
+    print("\nResultado:", " ".join(frase))
+
+if __name__ == "__main__":
+    executar_geracao()
